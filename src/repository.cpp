@@ -904,6 +904,10 @@ QIODevice *FastImportRepository::Transaction::addFile(const QString &path, int m
     // in case the two mark allocations meet, we might as well just abort
     Q_ASSERT(mark > repository->last_commit_mark + 1);
 
+    QString combined = repository->prefix + path.toUtf8();
+    if (combined.startsWith("/"))
+        combined.remove(0, 1);
+
     if (modifiedFiles.capacity() == 0)
         modifiedFiles.reserve(2048);
     modifiedFiles.append("M ");
@@ -911,7 +915,7 @@ QIODevice *FastImportRepository::Transaction::addFile(const QString &path, int m
     modifiedFiles.append(" :");
     modifiedFiles.append(QByteArray::number(mark));
     modifiedFiles.append(' ');
-    modifiedFiles.append(repository->prefix + path.toUtf8());
+    modifiedFiles.append(combined);
     modifiedFiles.append("\n");
 
     // it is returned for being written to, so start the process in any case
